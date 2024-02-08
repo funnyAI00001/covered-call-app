@@ -1,30 +1,40 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { Navigate } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import LoadingOverlay from '../dialog/loadingOverlay';
+import React, { useEffect } from "react";
+import { connect } from "react-redux";
+import { Navigate } from "react-router-dom";
+import PropTypes from "prop-types";
+import LoadingOverlay from "../dialog/loadingOverlay";
+import { getExpirations } from "../../actions/stockAction";
 
 const PrivateRoute = ({
-    component: Component,
-    auth: { isAuthenticated, loading }
+  component: Component,
+  auth: { isAuthenticated, loading },
+  getExpirations
 }) => {
-    if (isAuthenticated && loading) {
-        return <LoadingOverlay text='loading...' color='success'/>
-    }
+  useEffect(() => {
+    getExpirations()
+  },[getExpirations]);
 
-    if (isAuthenticated) {
-        return <Component />
-    }
+  if (isAuthenticated && loading) {
+    return <LoadingOverlay text="loading..." color="success" />;
+  }
 
-    return <Navigate to='/login' />
-}
+  if (isAuthenticated) {
+    return <Component />;
+  }
+
+  return <Navigate to="/login" />;
+};
 
 PrivateRoute.propTypes = {
-    auth: PropTypes.object.isRequired
+  auth: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-    auth: state.auth
-})
+  auth: state.auth,
+});
 
-export default connect(mapStateToProps) (PrivateRoute);
+const mapDispatchToProps = (dispatch) => ({
+  getExpirations: () => dispatch(getExpirations()),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(PrivateRoute);

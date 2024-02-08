@@ -7,12 +7,14 @@ import {
 } from "../actions/types";
 
 const initialState = {
-  isAuthenticated: false,
+  // isAuthenticated: false,
+  isAuthenticated: true,
   token: null,
   credential: "",
   emailError: "",
-  loading: true,
-  user: {},
+  // loading: true,
+  loading: false,
+  user: {name: 'user', email: 'test@gmail.com'},
 };
 
 const authReducer = (state = initialState, action) => {

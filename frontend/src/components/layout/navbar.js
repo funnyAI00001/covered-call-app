@@ -16,13 +16,14 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import InfoIcon from "@mui/icons-material/Info";
 import WarningIcon from "@mui/icons-material/Warning";
+import EditCalendarIcon from '@mui/icons-material/EditCalendar';
 import { useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { useState } from "react";
 import { connect } from "react-redux";
-import { Avatar } from "@mui/material";
+// import { Avatar } from "@mui/material";
 
-import { getInitials } from "../../utils/usefulFuncs";
+// import { getInitials } from "../../utils/usefulFuncs";
 import AccountPopover from "../account/accountPopover";
 
 const drawerWidth = 240;
@@ -30,12 +31,13 @@ let navItems = [];
 
 function DrawerAppBar(props) {
   if (props.isAuthenticated) {
-    navItems = ["about"];
+    navItems = ["expiration", "about"];
   } else {
     navItems = [];
   }
 
-  const { window, user } = props;
+  const { window } = props;
+  // const { user } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -70,7 +72,7 @@ function DrawerAppBar(props) {
       }}
     >
       <Typography variant="h6" sx={{ my: 2 }}>
-        <i>Call Option Calculator</i>
+        <i>Coverd</i>
       </Typography>
       <Divider />
       <List>
@@ -128,7 +130,7 @@ function DrawerAppBar(props) {
               href="/dashboard"
               style={{ color: "white", textDecoration: "none" }}
             >
-              <i>Call Option Calculator</i>
+              <i>COVERD</i>
             </a>
           </Typography>
           <Typography
@@ -141,14 +143,36 @@ function DrawerAppBar(props) {
             }}
           >
             {isOffline && (
-              <Box display='flex' alignItems='center' sx={{ backgroundColor: '#444', padding: 1 }}>
-                <WarningIcon sx={{ marginRight: 1 }}/>
+              <Box
+                display="flex"
+                alignItems="center"
+                sx={{ backgroundColor: "#444", padding: 1 }}
+              >
+                <WarningIcon sx={{ marginRight: 1 }} />
                 You are currently offline!
               </Box>
             )}
           </Typography>
 
           <Box sx={{ display: { xs: "none", sm: "block" }, gap: 2 }}>
+            <Button
+              color="primary"
+              sx={{
+                marginRight: 2,
+                border: "none",
+                color: "white",
+              }}
+            >
+              <EditCalendarIcon sx={{ marginRight: 0.5 }} />
+              <Typography variant="h6" fontSize={17}>
+                <NavLink
+                  to="/expiration"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  Expiration
+                </NavLink>
+              </Typography>
+            </Button>
             <Button
               color="primary"
               sx={{
@@ -168,7 +192,7 @@ function DrawerAppBar(props) {
               </Typography>
             </Button>
           </Box>
-          <Avatar
+          {/* <Avatar
             src={user && user.avatar}
             sx={{ width: 35, height: 35, cursor: "pointer" }}
             onClick={(event) => {
@@ -176,7 +200,7 @@ function DrawerAppBar(props) {
             }}
           >
             {getInitials(user.name)}
-          </Avatar>
+          </Avatar> */}
           <AccountPopover
             open={popoverOpen}
             onClose={() => {

@@ -17,13 +17,13 @@ import LoadingOverlay from "../components/dialog/loadingOverlay";
 import CustomAlert from "../components/customAlert";
 
 import { getCoveredCallPremium } from "../actions/stockAction";
+import { getExpirations } from "../actions/stockAction";
 
 const Dashboard = ({
   sharePrices,
   ATMs,
   OTM5s,
   OTM10s,
-  strikeATMs,
   ROIs,
   OTM5ROIs,
   OTM10ROIs,
@@ -31,9 +31,13 @@ const Dashboard = ({
   OTM5annualROIs,
   OTM10annualROIs,
   getCoveredCallPremium,
+  symbol_error,
+  option_error,
+  expiration_date,
+  expirations,
 }) => {
   const theme = useTheme();
-  const [symbols, setSymbols] = useState(["", ""]);
+  const [symbols, setSymbols] = useState([""]);
   const [selectedButton, setSelectedButton] = useState("ATM");
   const [gotFirstResult, setGotFirstResult] = useState(false);
   const [gotSecondResult, setGotSecondResult] = useState(false);
@@ -43,6 +47,11 @@ const Dashboard = ({
   const [premium, setPremium] = useState([]);
   const [openEmptySymbolWarningAlert, setOpenEmptySymbolWarningAlert] =
     useState(false);
+  const [openCapsSymbolWarningAlert, setOpenCapsSymbolWarningAlert] =
+    useState(false);
+  const [openSymbolNotFoundError, setOpenSymbolNotFoundError] = useState(false);
+  const [openOptionNotFoundError, setOpenOptionNotFoundError] = useState(false);
+  const [openNoExpirationError, setOpenNoExpirationError] = useState(false);
 
   useEffect(() => {
     if (ATMs.length > 0) {
@@ -51,6 +60,24 @@ const Dashboard = ({
       setGotFirstResult(false);
     }
   }, [ATMs]);
+
+  useEffect(() => {
+    if (symbol_error !== null) setOpenSymbolNotFoundError(true);
+
+    setTimeout(() => {
+      setOpenSymbolNotFoundError(false);
+    }, 5000);
+    setFirstCalculate(false);
+  }, [symbol_error]);
+
+  useEffect(() => {
+    if (option_error !== null) setOpenOptionNotFoundError(true);
+
+    setTimeout(() => {
+      setOpenOptionNotFoundError(false);
+    }, 5000);
+    setFirstCalculate(false);
+  }, [option_error]);
 
   // set tab of the coveredCallReturnstable as ATM whenever calculation result is updated
   useEffect(() => {
@@ -75,11 +102,33 @@ const Dashboard = ({
     for (let index = 0; index < symbols.length; index++) {
       const element = symbols[index];
       if (element === "") {
+        // check if the symbol is the empty string
         setOpenEmptySymbolWarningAlert(true);
 
         setTimeout(() => {
           setOpenEmptySymbolWarningAlert(false);
         }, 2000);
+
+        return;
+      }
+
+      if (element !== element.toUpperCase()) {
+        setOpenCapsSymbolWarningAlert(true);
+
+        setTimeout(() => {
+          setOpenCapsSymbolWarningAlert(false);
+        }, 2000);
+
+        return;
+      }
+
+      if (expirations.length === 0) {
+        setOpenNoExpirationError(true);
+
+        setTimeout(() => {
+          setOpenNoExpirationError(false);
+        }, 2000);
+
         return;
       }
     }
@@ -100,18 +149,21 @@ const Dashboard = ({
         setSelectedROIs(ROIs);
         setSelectedAnnualROIs(annualROIs);
         setPremium(ATMs);
+
         break;
 
       case "5%OTM":
         setSelectedROIs(OTM5ROIs);
         setSelectedAnnualROIs(OTM5annualROIs);
         setPremium(OTM5s);
+
         break;
 
       case "10%OTM":
         setSelectedROIs(OTM10ROIs);
         setSelectedAnnualROIs(OTM10annualROIs);
         setPremium(OTM10s);
+
         break;
 
       default:
@@ -138,7 +190,7 @@ const Dashboard = ({
       {/* section 1 */}
       <section>
         <Typography variant="h3" color="text.third" textAlign="center" mt={4}>
-          COVERD
+          {/* COVERD */}
         </Typography>
         <Typography variant="h3" color="text.third" textAlign="center" mx={2}>
           Stock Market Profit Accelerator
@@ -290,6 +342,7 @@ const Dashboard = ({
             sharePrices={sharePrices}
             OTM5s={OTM5s}
             OTM10s={OTM10s}
+            expiration_date={expiration_date}
           />
 
           <div style={{ textAlign: "center" }}>
@@ -383,6 +436,9 @@ const Dashboard = ({
                 color: "white",
                 marginTop: 2,
               }}
+              onClick={() => {
+                window.open("https://coverd.io/waitlist", "_blank");
+              }}
             >
               Optimize My Results Now
             </Button>
@@ -411,6 +467,34 @@ const Dashboard = ({
         severity="warning"
         text="Please fill out all fields correctly!"
       />
+
+      {/* Warning alert for lowercase letter */}
+      <CustomAlert
+        openState={openCapsSymbolWarningAlert}
+        severity="warning"
+        text="Please input only capital letters!"
+      />
+
+      {/* Symbol not found error */}
+      <CustomAlert
+        openState={openSymbolNotFoundError}
+        severity="warning"
+        text={symbol_error}
+      />
+
+      {/* Option not found error */}
+      <CustomAlert
+        openState={openOptionNotFoundError}
+        severity="warning"
+        text={option_error}
+      />
+
+      {/* Expiration not found error */}
+      <CustomAlert
+        openState={openNoExpirationError}
+        severity="warning"
+        text="Please upload expiration dates in the expiration page!"
+      />
     </div>
   );
 };
@@ -418,6 +502,7 @@ const Dashboard = ({
 const mapDispatchToProps = (dispatch) => ({
   getCoveredCallPremium: (data, callback) =>
     dispatch(getCoveredCallPremium(data, callback)),
+  getExpirations: () => dispatch(getExpirations()),
 });
 
 const mapStateToProps = (state) => ({
@@ -432,6 +517,10 @@ const mapStateToProps = (state) => ({
   OTM5annualROIs: state.stock.OTM5annualROIs,
   OTM10ROIs: state.stock.OTM10ROIs,
   OTM10annualROIs: state.stock.OTM10annualROIs,
+  symbol_error: state.stock.symbol_not_found_error_message,
+  option_error: state.stock.options_not_found_error_message,
+  expiration_date: state.stock.expiration_date,
+  expirations: state.stock.expirations,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

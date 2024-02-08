@@ -15,6 +15,7 @@ const CoveredCallReturnsTable = ({
   premium,
   ROIs,
   annualROIs,
+  expiration_date,
 }) => {
   const theme = useTheme();
 
@@ -65,11 +66,22 @@ const CoveredCallReturnsTable = ({
                   <TableCell component="th" scope="row" align="center">
                     {symbol}
                   </TableCell>
-                  <TableCell align="center">${sharePrices[index]}</TableCell>
-                  <TableCell align="center">Feb-16’24</TableCell>
+                  <TableCell align="center">
+                    $
+                    {Intl.NumberFormat("en-US").format(
+                      sharePrices[index] * 100
+                    )}
+                  </TableCell>
+                  <TableCell align="center">{expiration_date}</TableCell>
                   <TableCell align="center">${premium[index]}</TableCell>
-                  <TableCell align="center">{ROIs[index]}{" %"}</TableCell>
-                  <TableCell align="center">{annualROIs[index]}{" %"}</TableCell>
+                  <TableCell align="center">
+                    {ROIs[index]}
+                    {" %"}
+                  </TableCell>
+                  <TableCell align="center">
+                    {annualROIs[index]}
+                    {" %"}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -85,6 +97,7 @@ const CoveredCallReturnsTable = ({
 
 const mapStateToProps = (state) => ({
   sharePrices: state.stock.sharePrices,
+  expiration_date: state.stock.expiration_date,
 });
 
 export default connect(mapStateToProps)(CoveredCallReturnsTable);

@@ -12,6 +12,7 @@ import Register from "./pages/register";
 import Login from "./pages/login";
 import DrawerAppBar from "./components/layout/navbar";
 import Dashboard from "./pages/dashboard";
+import Expiration from "./pages/expiration";
 import Footer from "./components/layout/footer";
 import setAuthToken from "./utils/setAuthToken";
 import PrivateRoute from "./components/routes/privateRoute";
@@ -66,6 +67,11 @@ const App = () => {
                   exact
                   path="/dashboard"
                   element={<PrivateRoute component={Dashboard} />}
+                ></Route>
+                <Route
+                  exact
+                  path="/expiration"
+                  element={<PrivateRoute component={Expiration} />}
                 ></Route>
               </Routes>
             </Container>

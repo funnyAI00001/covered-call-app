@@ -8,8 +8,7 @@ require("dotenv").config();
 let mongoConnectionUrl = "mongodb://127.0.0.1:27017/stock_app";
 
 if (process.env.NODE_ENV === "production") {
-  mongoConnectionUrl =
-    "mongodb+srv://ctori0816:QwBaTtsIJcRJLTOM@cluster0.psaminp.mongodb.net/stock_app";
+  mongoConnectionUrl = process.env.MONGO_URL;
 }
 
 mongoose
@@ -32,7 +31,7 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 
 // Your code
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.resolve(__dirname, "client", "build")));
+  app.use(express.static(path.resolve(__dirname, "../frontend", "build")));
   app.get("*", (req, res) => {
     res.sendFile(
       path.resolve(__dirname, "../frontend", "build", "index.html"),
@@ -44,7 +43,6 @@ if (process.env.NODE_ENV === "production") {
     );
   });
 }
-
 
 // Start the server
 const port = process.env.PORT || 5000;
