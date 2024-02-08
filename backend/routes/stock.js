@@ -143,14 +143,14 @@ router.post("/getCoveredcallPremium", async (req, res) => {
             ATMindex = index;
           }
 
-          const diff3 = Math.abs(sharePrice * 1.05 - strike[ATMindex]);
+          const diff3 = Math.abs(sharePrice * 1.05 - strike[OTM5index]);
           const diff4 = Math.abs(sharePrice * 1.05 - strike[index]);
 
           if (diff4 < diff3) {
             OTM5index = index;
           }
 
-          const diff5 = Math.abs(sharePrice * 1.1 - strike[ATMindex]);
+          const diff5 = Math.abs(sharePrice * 1.1 - strike[OTM10index]);
           const diff6 = Math.abs(sharePrice * 1.1 - strike[index]);
 
           if (diff6 < diff5) {

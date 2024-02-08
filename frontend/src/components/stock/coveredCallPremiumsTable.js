@@ -15,7 +15,7 @@ const CoveredCallPremiumsTable = ({
   ATMs,
   OTM5s,
   OTM10s,
-  expiration_date
+  expiration_date,
 }) => {
   const theme = useTheme();
 
@@ -46,7 +46,7 @@ const CoveredCallPremiumsTable = ({
             <TableHead sx={{ textTransform: "none" }}>
               <TableRow>
                 <TableCell align="center">Symbol</TableCell>
-                <TableCell align="center">Share price</TableCell>
+                <TableCell align="center">Share price x 100</TableCell>
                 <TableCell align="center">Expiration Date</TableCell>
                 <TableCell align="center">ATM</TableCell>
                 <TableCell align="center">5% OTM</TableCell>
@@ -67,7 +67,10 @@ const CoveredCallPremiumsTable = ({
                     {symbol}
                   </TableCell>
                   <TableCell align="center">
-                    ${Intl.NumberFormat('en-US').format(sharePrices[index] * 100)}
+                    $
+                    {Intl.NumberFormat("en-US").format(
+                      sharePrices[index] * 100
+                    )}
                   </TableCell>
                   <TableCell align="center">{expiration_date}</TableCell>
                   <TableCell align="center">${ATMs[index]}</TableCell>

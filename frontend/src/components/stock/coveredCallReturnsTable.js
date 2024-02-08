@@ -46,7 +46,7 @@ const CoveredCallReturnsTable = ({
             <TableHead sx={{ textTransform: "none" }}>
               <TableRow>
                 <TableCell align="center">Symbol</TableCell>
-                <TableCell align="center">Share price</TableCell>
+                <TableCell align="center">Share price x 100</TableCell>
                 <TableCell align="center">Expiry Date</TableCell>
                 <TableCell align="center">Premium</TableCell>
                 <TableCell align="center">ROI</TableCell>

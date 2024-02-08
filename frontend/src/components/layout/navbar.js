@@ -16,7 +16,7 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import InfoIcon from "@mui/icons-material/Info";
 import WarningIcon from "@mui/icons-material/Warning";
-import EditCalendarIcon from '@mui/icons-material/EditCalendar';
+// import EditCalendarIcon from "@mui/icons-material/EditCalendar";
 import { useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { useState } from "react";
@@ -31,7 +31,7 @@ let navItems = [];
 
 function DrawerAppBar(props) {
   if (props.isAuthenticated) {
-    navItems = ["expiration", "about"];
+    navItems = ["expiration", "What is COVERD?"];
   } else {
     navItems = [];
   }
@@ -155,7 +155,7 @@ function DrawerAppBar(props) {
           </Typography>
 
           <Box sx={{ display: { xs: "none", sm: "block" }, gap: 2 }}>
-            <Button
+            {/* <Button
               color="primary"
               sx={{
                 marginRight: 2,
@@ -172,7 +172,7 @@ function DrawerAppBar(props) {
                   Expiration
                 </NavLink>
               </Typography>
-            </Button>
+            </Button> */}
             <Button
               color="primary"
               sx={{
@@ -184,10 +184,11 @@ function DrawerAppBar(props) {
               <InfoIcon sx={{ marginRight: 0.5 }} />
               <Typography variant="h6" fontSize={17}>
                 <NavLink
-                  to="/about"
+                  to="https://coverd.io"
                   style={{ textDecoration: "none", color: "inherit" }}
+                  target="_blank"
                 >
-                  About
+                  What is COVERD?
                 </NavLink>
               </Typography>
             </Button>

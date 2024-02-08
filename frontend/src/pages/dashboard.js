@@ -45,10 +45,10 @@ const Dashboard = ({
   const [selectedROIs, setSelectedROIs] = useState([]);
   const [selectedAnnualROIs, setSelectedAnnualROIs] = useState([]);
   const [premium, setPremium] = useState([]);
-  const [openEmptySymbolWarningAlert, setOpenEmptySymbolWarningAlert] =
-    useState(false);
-  const [openCapsSymbolWarningAlert, setOpenCapsSymbolWarningAlert] =
-    useState(false);
+  // const [openEmptySymbolWarningAlert, setOpenEmptySymbolWarningAlert] =
+  //   useState(false);
+  // const [openCapsSymbolWarningAlert, setOpenCapsSymbolWarningAlert] =
+  //   useState(false);
   const [openSymbolNotFoundError, setOpenSymbolNotFoundError] = useState(false);
   const [openOptionNotFoundError, setOpenOptionNotFoundError] = useState(false);
   const [openNoExpirationError, setOpenNoExpirationError] = useState(false);
@@ -93,48 +93,55 @@ const Dashboard = ({
   };
 
   const handleSymbolChange = (e, index) => {
+    const input = e.target.value.toUpperCase(); // Convert input text to uppercase
+    const onlyUppercase = input.replace(/[^A-Z]/g, ""); // Remove any characters that are not uppercase letters
     const values = [...symbols];
-    values[index] = e.target.value;
+    values[index] = onlyUppercase;
     setSymbols(values);
   };
 
   const handleCalculate = () => {
-    for (let index = 0; index < symbols.length; index++) {
-      const element = symbols[index];
-      if (element === "") {
-        // check if the symbol is the empty string
-        setOpenEmptySymbolWarningAlert(true);
+    // for (let index = 0; index < symbols.length; index++) {
+    //   const element = symbols[index];
+    //   if (element === "") {
+    //     // check if the symbol is the empty string
+    //     setOpenEmptySymbolWarningAlert(true);
 
-        setTimeout(() => {
-          setOpenEmptySymbolWarningAlert(false);
-        }, 2000);
+    //     setTimeout(() => {
+    //       setOpenEmptySymbolWarningAlert(false);
+    //     }, 2000);
 
-        return;
-      }
+    //     return;
+    //   }
 
-      if (element !== element.toUpperCase()) {
-        setOpenCapsSymbolWarningAlert(true);
+    //   if (element !== element.toUpperCase()) {
+    //     setOpenCapsSymbolWarningAlert(true);
 
-        setTimeout(() => {
-          setOpenCapsSymbolWarningAlert(false);
-        }, 2000);
+    //     setTimeout(() => {
+    //       setOpenCapsSymbolWarningAlert(false);
+    //     }, 2000);
 
-        return;
-      }
+    //     return;
+    //   }
 
-      if (expirations.length === 0) {
-        setOpenNoExpirationError(true);
+    // }
 
-        setTimeout(() => {
-          setOpenNoExpirationError(false);
-        }, 2000);
+    const filteredSymbols = symbols.filter((item) => item !== "");
 
-        return;
-      }
+    setSymbols(filteredSymbols);
+
+    if (expirations.length === 0) {
+      setOpenNoExpirationError(true);
+
+      setTimeout(() => {
+        setOpenNoExpirationError(false);
+      }, 2000);
+
+      return;
     }
 
     const data = {
-      symbols: symbols,
+      symbols: filteredSymbols,
     };
 
     setFirstCalculate(true);
@@ -177,6 +184,13 @@ const Dashboard = ({
 
   const hanldeCalculateAndReturn = () => {
     setGotSecondResult(true);
+  };
+
+  const handleDeleteSymbol = (index) => {
+    const cutSymbols = [...symbols];
+    cutSymbols.splice(index, 1)
+
+    setSymbols(cutSymbols);
   };
 
   return (
@@ -258,6 +272,7 @@ const Dashboard = ({
                     variant="outlined"
                     sx={{
                       marginTop: 2,
+                      marginBottom: 2,
                       background: "white",
                       borderRadius: "10px",
                     }}
@@ -267,7 +282,19 @@ const Dashboard = ({
                     style={{ color: "black !important" }}
                   />
                 </Grid>
-                <Grid item xs={3}></Grid>
+                <Grid item xs={2} sm={3}>
+                  {index !== 0 && (
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => {
+                        handleDeleteSymbol(index);
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  )}
+                </Grid>
               </Grid>
             ))}
             <div>
@@ -462,18 +489,18 @@ const Dashboard = ({
       )}
 
       {/* Warning alert for empty symbol */}
-      <CustomAlert
+      {/* <CustomAlert
         openState={openEmptySymbolWarningAlert}
         severity="warning"
         text="Please fill out all fields correctly!"
-      />
+      /> */}
 
       {/* Warning alert for lowercase letter */}
-      <CustomAlert
+      {/* <CustomAlert
         openState={openCapsSymbolWarningAlert}
         severity="warning"
         text="Please input only capital letters!"
-      />
+      /> */}
 
       {/* Symbol not found error */}
       <CustomAlert
