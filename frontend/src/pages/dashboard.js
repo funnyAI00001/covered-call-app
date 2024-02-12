@@ -213,7 +213,7 @@ const Dashboard = ({
 
         <Typography
           variant="body1"
-          color="initial"
+          color="white"
           textAlign="center"
           mt={3}
           paddingX={2}
@@ -223,7 +223,7 @@ const Dashboard = ({
         </Typography>
         <Typography
           variant="body1"
-          color="initial"
+          color="white"
           textAlign="center"
           paddingX={1}
         >
@@ -248,13 +248,13 @@ const Dashboard = ({
               },
             }}
           >
-            <Typography variant="body1" color="initial" mt={1.5}>
+            <Typography variant="body1" color="white" mt={1.5}>
               Enter stock ticker symbol
             </Typography>
             {symbols.map((symbol, index) => (
               <Grid container display="flex" alignItems="center" key={index}>
                 <Grid item xs={2} sm={3} textAlign="right">
-                  <Typography variant="body1" color="initial" paddingRight={1}>
+                  <Typography variant="body1" color="white" paddingRight={1}>
                     {index + 1}
                     {"."}
                   </Typography>
