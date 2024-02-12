@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { connect } from "react-redux";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 
 import CoveredCallPremiumsTable from "../components/stock/coveredCallPremiumsTable";
 import CoveredCallReturnsTable from "../components/stock/coveredCallReturnsTable";
@@ -188,7 +189,7 @@ const Dashboard = ({
 
   const handleDeleteSymbol = (index) => {
     const cutSymbols = [...symbols];
-    cutSymbols.splice(index, 1)
+    cutSymbols.splice(index, 1);
 
     setSymbols(cutSymbols);
   };
@@ -282,17 +283,21 @@ const Dashboard = ({
                     style={{ color: "black !important" }}
                   />
                 </Grid>
-                <Grid item xs={2} sm={3}>
+                <Grid
+                  item
+                  xs={2}
+                  sm={3}
+                  sx={{ paddingRight: { xs: 0, md: 3 } }}
+                >
                   {index !== 0 && (
-                    <Button
-                      variant="outlined"
-                      color="secondary"
+                    <IconButton
+                      aria-label="delete"
                       onClick={() => {
                         handleDeleteSymbol(index);
                       }}
                     >
-                      Delete
-                    </Button>
+                      <RemoveCircleIcon />
+                    </IconButton>
                   )}
                 </Grid>
               </Grid>

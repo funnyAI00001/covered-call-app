@@ -21,6 +21,7 @@ import { useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { useState } from "react";
 import { connect } from "react-redux";
+import { useMediaQuery } from "@mui/material";
 // import { Avatar } from "@mui/material";
 
 // import { getInitials } from "../../utils/usefulFuncs";
@@ -31,7 +32,7 @@ let navItems = [];
 
 function DrawerAppBar(props) {
   if (props.isAuthenticated) {
-    navItems = ["expiration", "What is COVERD?"];
+    navItems = ["What is COVERD?"];
   } else {
     navItems = [];
   }
@@ -40,6 +41,14 @@ function DrawerAppBar(props) {
   // const { user } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const isMd = useMediaQuery((theme) => theme.breakpoints.up("md"));
+  const isLg = useMediaQuery((theme) => theme.breakpoints.up("lg"));
+
+  // Set different image sizes based on screen size
+  const imageStyle = {
+    width: isLg ? "3vw" : isMd ? "4vw" : "5vw",
+    marginRight: "1vw",
+  };
 
   const popoverOpen = Boolean(anchorEl);
 
@@ -76,13 +85,20 @@ function DrawerAppBar(props) {
       </Typography>
       <Divider />
       <List>
-        {navItems.map((item, index) => (
-          <ListItem key={index} disablePadding>
-            <ListItemButton sx={{ textAlign: "center" }}>
-              <ListItemText primary={item} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+        {/* {navItems.map((item, index) => ( */}
+        <ListItem disablePadding>
+          <ListItemButton sx={{ textAlign: "center" }}>
+            <NavLink
+              to="https://coverd.io"
+              style={{ textDecoration: "none", color: "inherit" }}
+              target="_blank"
+            >
+              <ListItemText primary="What is COVERD?" />
+            </NavLink>
+          </ListItemButton>
+        </ListItem>
+
+        {/* ))} */}
       </List>
     </Box>
   );
@@ -96,9 +112,9 @@ function DrawerAppBar(props) {
       <AppBar
         component="nav"
         position="static"
-        sx={{ color: "black", padding: 2 }}
+        sx={{ color: "white", padding: 2 }}
       >
-        <Toolbar sx={{ position: "relative" }}>
+        <Toolbar sx={{ position: "relative", justifyContent: "space-between" }}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -112,11 +128,7 @@ function DrawerAppBar(props) {
             <img
               src="/logo.png"
               alt="logo"
-              style={{
-                width: "3vw",
-                marginRight: "1vw",
-                display: { xs: "none" },
-              }}
+              style={imageStyle}
             />
           </Link>
 
