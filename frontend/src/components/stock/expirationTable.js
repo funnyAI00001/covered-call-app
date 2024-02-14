@@ -63,7 +63,7 @@ const ExpirationTable = ({ expirations }) => {
         ) : (
           <Typography
             variant="h1"
-            color="initial"
+            color="white"
             sx={{ opacity: 0.7, padding: 2 }}
           >
             No Data

@@ -168,7 +168,7 @@ const Login = (props) => {
             <Divider />
             <Typography
               variant="body1"
-              color="initial"
+              color="white"
               textAlign="center"
               mt={2}
               mb={1}

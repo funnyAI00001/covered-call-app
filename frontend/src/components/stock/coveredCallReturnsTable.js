@@ -3,9 +3,8 @@ import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { useTheme } from "@emotion/react";
 import { connect } from "react-redux";
 
@@ -16,8 +15,18 @@ const CoveredCallReturnsTable = ({
   ROIs,
   annualROIs,
   expiration_date,
+  strikePrices,
 }) => {
   const theme = useTheme();
+  const rowNames = [
+    "Symbol",
+    "Share price x 100",
+    "Expiry Date",
+    "Strike Price",
+    "Premium",
+    "ROI",
+    "Annual. ROI",
+  ];
 
   return (
     <fieldset
@@ -39,57 +48,183 @@ const CoveredCallReturnsTable = ({
         }}
       >
         <TableContainer>
-          <Table
-            aria-label="covered call premiums table"
-            sx={{ "& .MuiTableCell-body": { color: "white" } }}
-          >
-            <TableHead sx={{ textTransform: "none" }}>
-              <TableRow>
-                <TableCell align="center">Symbol</TableCell>
-                <TableCell align="center">Share price x 100</TableCell>
-                <TableCell align="center">Expiry Date</TableCell>
-                <TableCell align="center">Premium</TableCell>
-                <TableCell align="center">ROI</TableCell>
-                <TableCell align="center">Annual. ROI</TableCell>
-              </TableRow>
-            </TableHead>
+          <Table aria-label="covered call premiums table">
             <TableBody
               sx={{
                 "&:last-child td, &:last-child th": { borderBottom: "none" },
               }}
             >
-              {symbols.map((symbol, index) => (
-                <TableRow
-                  key={index}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  align="left"
+                  sx={{
+                    color: theme.palette.text.third,
+                    fontWeight: 600,
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    backgroundColor: theme.palette.background.default,
+                  }}
                 >
-                  <TableCell component="th" scope="row" align="center">
-                    {symbol}
+                  {rowNames[0]}
+                </TableCell>
+                {symbols.map((item, index) => (
+                  <TableCell align="center" key={index}>
+                    {item}
                   </TableCell>
-                  <TableCell align="center">
-                    $
-                    {Intl.NumberFormat("en-US").format(
-                      sharePrices[index] * 100
-                    )}
+                ))}
+              </TableRow>
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  align="left"
+                  sx={{
+                    color: theme.palette.text.third,
+                    fontWeight: 600,
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  {rowNames[1]}
+                </TableCell>
+                {sharePrices.map((item, index) => (
+                  <TableCell align="center" key={index}>
+                    ${Intl.NumberFormat("en-US").format(item * 100)}
                   </TableCell>
-                  <TableCell align="center">{expiration_date}</TableCell>
-                  <TableCell align="center">${premium[index]}</TableCell>
-                  <TableCell align="center">
-                    {ROIs[index]}
-                    {" %"}
+                ))}
+              </TableRow>
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  align="left"
+                  sx={{
+                    color: theme.palette.text.third,
+                    fontWeight: 600,
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  {rowNames[2]}
+                </TableCell>
+                {sharePrices.map((item, index) => (
+                  <TableCell align="center" key={index}>
+                    {expiration_date}
                   </TableCell>
-                  <TableCell align="center">
-                    {annualROIs[index]}
-                    {" %"}
+                ))}
+              </TableRow>
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  align="left"
+                  sx={{
+                    color: theme.palette.text.third,
+                    fontWeight: 600,
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  {rowNames[3]}
+                </TableCell>
+                {strikePrices.map((item, index) => (
+                  <TableCell align="center" key={index}>
+                    ${item}
                   </TableCell>
-                </TableRow>
-              ))}
+                ))}
+              </TableRow>
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  align="left"
+                  sx={{
+                    color: theme.palette.text.third,
+                    fontWeight: 600,
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  {rowNames[4]}
+                </TableCell>
+                {premium.map((item, index) => (
+                  <TableCell align="center" key={index}>
+                    ${item}
+                  </TableCell>
+                ))}
+              </TableRow>
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  align="left"
+                  sx={{
+                    color: theme.palette.text.third,
+                    fontWeight: 600,
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  {rowNames[5]}
+                </TableCell>
+                {ROIs.map((item, index) => (
+                  <TableCell align="center" key={index}>
+                    {item}%
+                  </TableCell>
+                ))}
+              </TableRow>
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  align="left"
+                  sx={{
+                    color: theme.palette.text.third,
+                    fontWeight: 600,
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  {rowNames[6]}
+                </TableCell>
+                {annualROIs.map((item, index) => (
+                  <TableCell align="center" key={index}>
+                    {item}%
+                  </TableCell>
+                ))}
+              </TableRow>
             </TableBody>
           </Table>
         </TableContainer>
-        <Typography variant="body1" color="initial" textAlign="right">
-          Premiums per 100 shares
-        </Typography>
       </Box>
     </fieldset>
   );

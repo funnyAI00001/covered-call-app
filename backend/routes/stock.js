@@ -45,6 +45,8 @@ router.post("/getCoveredcallPremium", async (req, res) => {
   const OTM5s = [];
   const OTM10s = [];
   const strikeATMs = [];
+  const strikeOTM5s = [];
+  const strikeOTM10s = [];
   const ROIs = [];
   const annualROIs = [];
   const OTM5ROIs = [];
@@ -162,6 +164,8 @@ router.post("/getCoveredcallPremium", async (req, res) => {
         const OTM5 = mid[OTM5index] * 100;
         const OTM10 = mid[OTM10index] * 100;
         const strikeATM = strike[ATMindex];
+        const strikeOTM5 = strike[OTM5index];
+        const strikeOTM10 = strike[OTM10index];
         const ROI = ATM / sharePrice;
         const AnnualROI =
           (Math.pow(1 + ROI / 100, 365 / daysToExpirationDate) - 1) * 100;
@@ -176,6 +180,8 @@ router.post("/getCoveredcallPremium", async (req, res) => {
         OTM5s.push(OTM5.toFixed(0));
         OTM10s.push(OTM10.toFixed(0));
         strikeATMs.push(strikeATM);
+        strikeOTM5s.push(strikeOTM5);
+        strikeOTM10s.push(strikeOTM10);
         ROIs.push(ROI.toFixed(2));
         annualROIs.push(AnnualROI.toFixed(2));
         OTM5ROIs.push(OTM5ROI.toFixed(2));
@@ -195,6 +201,8 @@ router.post("/getCoveredcallPremium", async (req, res) => {
     OTM5s,
     OTM10s,
     strikeATMs,
+    strikeOTM5s,
+    strikeOTM10s,
     ROIs,
     annualROIs,
     OTM5ROIs,

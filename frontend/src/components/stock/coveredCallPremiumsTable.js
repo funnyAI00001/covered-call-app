@@ -3,10 +3,9 @@ import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { useTheme } from "@emotion/react";
 
 const CoveredCallPremiumsTable = ({
@@ -18,6 +17,14 @@ const CoveredCallPremiumsTable = ({
   expiration_date,
 }) => {
   const theme = useTheme();
+  const rowNames = [
+    "Symbol",
+    "Share price x 100",
+    "Expiry Date",
+    "ATM",
+    "5% OTM",
+    "10% OTM",
+  ];
 
   return (
     <fieldset
@@ -39,26 +46,157 @@ const CoveredCallPremiumsTable = ({
         }}
       >
         <TableContainer>
-          <Table
-            aria-label="covered call premiums table"
-            sx={{ "& .MuiTableCell-body": { color: "white" } }}
-          >
-            <TableHead sx={{ textTransform: "none" }}>
-              <TableRow>
-                <TableCell align="center">Symbol</TableCell>
-                <TableCell align="center">Share price x 100</TableCell>
-                <TableCell align="center">Expiration Date</TableCell>
-                <TableCell align="center">ATM</TableCell>
-                <TableCell align="center">5% OTM</TableCell>
-                <TableCell align="center">10% OTM</TableCell>
-              </TableRow>
-            </TableHead>
+          <Table aria-label="covered call premiums table">
             <TableBody
               sx={{
                 "&:last-child td, &:last-child th": { borderBottom: "none" },
               }}
             >
-              {symbols.map((symbol, index) => (
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  align="left"
+                  sx={{
+                    color: theme.palette.text.third,
+                    fontWeight: 600,
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  {rowNames[0]}
+                </TableCell>
+                {symbols.map((item, index) => (
+                  <TableCell align="center" key={index}>
+                    {item}
+                  </TableCell>
+                ))}
+              </TableRow>
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  align="left"
+                  sx={{
+                    color: theme.palette.text.third,
+                    fontWeight: 600,
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  {rowNames[1]}
+                </TableCell>
+                {sharePrices.map((item, index) => (
+                  <TableCell align="center" key={index}>
+                    ${Intl.NumberFormat("en-US").format(item * 100)}
+                  </TableCell>
+                ))}
+              </TableRow>
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  align="left"
+                  sx={{
+                    color: theme.palette.text.third,
+                    fontWeight: 600,
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  {rowNames[2]}
+                </TableCell>
+                {sharePrices.map((item, index) => (
+                  <TableCell align="center" key={index}>
+                    {expiration_date}
+                  </TableCell>
+                ))}
+              </TableRow>
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  align="left"
+                  sx={{
+                    color: theme.palette.text.third,
+                    fontWeight: 600,
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  {rowNames[3]}
+                </TableCell>
+                {ATMs.map((item, index) => (
+                  <TableCell align="center" key={index}>
+                    ${item}
+                  </TableCell>
+                ))}
+              </TableRow>
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  align="left"
+                  sx={{
+                    color: theme.palette.text.third,
+                    fontWeight: 600,
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  {rowNames[4]}
+                </TableCell>
+                {OTM5s.map((item, index) => (
+                  <TableCell align="center" key={index}>
+                    ${item}
+                  </TableCell>
+                ))}
+              </TableRow>
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  align="left"
+                  sx={{
+                    color: theme.palette.text.third,
+                    fontWeight: 600,
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  {rowNames[5]}
+                </TableCell>
+                {OTM10s.map((item, index) => (
+                  <TableCell align="center" key={index}>
+                    ${item}
+                  </TableCell>
+                ))}
+              </TableRow>
+              {/* {symbols.map((symbol, index) => (
                 <TableRow
                   key={symbol}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -77,13 +215,13 @@ const CoveredCallPremiumsTable = ({
                   <TableCell align="center">${OTM5s[index]}</TableCell>
                   <TableCell align="center">${OTM10s[index]}</TableCell>
                 </TableRow>
-              ))}
+              ))} */}
             </TableBody>
           </Table>
         </TableContainer>
-        <Typography variant="body1" color="initial" textAlign="right">
+        {/* <Typography variant="body1" color="initial" textAlign="right">
           Premiums per 100 shares
-        </Typography>
+        </Typography> */}
       </Box>
     </fieldset>
   );

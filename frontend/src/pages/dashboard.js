@@ -36,6 +36,9 @@ const Dashboard = ({
   option_error,
   expiration_date,
   expirations,
+  strikeATMs,
+  strikeOTM5s,
+  strikeOTM10s,
 }) => {
   const theme = useTheme();
   const [symbols, setSymbols] = useState([""]);
@@ -46,10 +49,7 @@ const Dashboard = ({
   const [selectedROIs, setSelectedROIs] = useState([]);
   const [selectedAnnualROIs, setSelectedAnnualROIs] = useState([]);
   const [premium, setPremium] = useState([]);
-  // const [openEmptySymbolWarningAlert, setOpenEmptySymbolWarningAlert] =
-  //   useState(false);
-  // const [openCapsSymbolWarningAlert, setOpenCapsSymbolWarningAlert] =
-  //   useState(false);
+  const [strikePrices, setStrikePrices] = useState([]);
   const [openSymbolNotFoundError, setOpenSymbolNotFoundError] = useState(false);
   const [openOptionNotFoundError, setOpenOptionNotFoundError] = useState(false);
   const [openNoExpirationError, setOpenNoExpirationError] = useState(false);
@@ -85,8 +85,9 @@ const Dashboard = ({
     setSelectedROIs(ROIs);
     setSelectedAnnualROIs(annualROIs);
     setPremium(ATMs);
+    setStrikePrices(strikeATMs);
     handleButtonClick("ATM"); //eslint-disable-next-line
-  }, [ROIs, annualROIs, ATMs]);
+  }, [ROIs, annualROIs, ATMs, strikeATMs]);
 
   // add symbols
   const addField = () => {
@@ -102,31 +103,6 @@ const Dashboard = ({
   };
 
   const handleCalculate = () => {
-    // for (let index = 0; index < symbols.length; index++) {
-    //   const element = symbols[index];
-    //   if (element === "") {
-    //     // check if the symbol is the empty string
-    //     setOpenEmptySymbolWarningAlert(true);
-
-    //     setTimeout(() => {
-    //       setOpenEmptySymbolWarningAlert(false);
-    //     }, 2000);
-
-    //     return;
-    //   }
-
-    //   if (element !== element.toUpperCase()) {
-    //     setOpenCapsSymbolWarningAlert(true);
-
-    //     setTimeout(() => {
-    //       setOpenCapsSymbolWarningAlert(false);
-    //     }, 2000);
-
-    //     return;
-    //   }
-
-    // }
-
     const filteredSymbols = symbols.filter((item) => item !== "");
 
     setSymbols(filteredSymbols);
@@ -156,6 +132,7 @@ const Dashboard = ({
       case "ATM":
         setSelectedROIs(ROIs);
         setSelectedAnnualROIs(annualROIs);
+        setStrikePrices(strikeATMs);
         setPremium(ATMs);
 
         break;
@@ -163,6 +140,7 @@ const Dashboard = ({
       case "5%OTM":
         setSelectedROIs(OTM5ROIs);
         setSelectedAnnualROIs(OTM5annualROIs);
+        setStrikePrices(strikeOTM5s);
         setPremium(OTM5s);
 
         break;
@@ -170,6 +148,7 @@ const Dashboard = ({
       case "10%OTM":
         setSelectedROIs(OTM10ROIs);
         setSelectedAnnualROIs(OTM10annualROIs);
+        setStrikePrices(strikeOTM10s);
         setPremium(OTM10s);
 
         break;
@@ -320,10 +299,9 @@ const Dashboard = ({
             sx={{
               margin: "auto",
               marginTop: 2,
-              backgroundColor: theme.palette.text.third,
+              backgroundColor: `${theme.palette.text.third} !important`,
               color: "white",
             }}
-            variant="outlined"
             onClick={handleCalculate}
           >
             Calculate
@@ -380,7 +358,7 @@ const Dashboard = ({
           <div style={{ textAlign: "center" }}>
             <Button
               sx={{
-                backgroundColor: theme.palette.text.third,
+                backgroundColor: `${theme.palette.text.third} !important`,
                 color: "white",
                 marginTop: 2,
               }}
@@ -431,7 +409,7 @@ const Dashboard = ({
                 paddingX: 2,
               },
               "& .selected": {
-                backgroundColor: theme.palette.text.third,
+                backgroundColor: `${theme.palette.text.third} !important`,
               },
             }}
             gap={2}
@@ -460,7 +438,53 @@ const Dashboard = ({
             ROIs={selectedROIs}
             annualROIs={selectedAnnualROIs}
             premium={premium}
+            strikePrices={strikePrices}
           />
+
+          <fieldset
+            style={{
+              width: "40%",
+              margin: "auto",
+              borderColor: theme.palette.text.third,
+              borderRadius: 5,
+              marginTop: "3vh",
+            }}
+          >
+            <Box
+              textAlign="left"
+              padding={2}
+              sx={{
+                width: "80vw",
+                "@media (min-width: 600px)": {
+                  width: "auto", // Set to auto for screens wider than 600px
+                },
+              }}
+            >
+              <Typography variant="body1" color="white" textAlign="left">
+                Your results:
+              </Typography>
+              <br></br>
+              If you hold 100 shares of{" "}
+              <span style={{ color: theme.palette.text.third }}>
+                {symbols[0]}
+              </span>
+              , you can collect{" "}
+              <span style={{ color: theme.palette.text.third }}>
+                ${ATMs[0]}{" "}
+              </span>
+              in premium today. To do this, you would sell 1 call option per 100
+              shares with{" "}
+              <span style={{ color: theme.palette.text.third }}>
+                {expiration_date}
+              </span>{" "}
+              expiry, at{" "}
+              <span style={{ color: theme.palette.text.third }}>
+                ${strikeATMs[0]}{" "}
+              </span>
+              strike.
+            </Box>
+          </fieldset>
+
           <div style={{ textAlign: "center" }}>
             <Button
               sx={{
@@ -472,7 +496,7 @@ const Dashboard = ({
                 window.open("https://coverd.io/waitlist", "_blank");
               }}
             >
-              Optimize My Results Now
+              Create Shortlist
             </Button>
             <br></br>
             <Button
@@ -492,20 +516,6 @@ const Dashboard = ({
       {firstCalculate && (
         <LoadingOverlay text="Calculating..." color="success" />
       )}
-
-      {/* Warning alert for empty symbol */}
-      {/* <CustomAlert
-        openState={openEmptySymbolWarningAlert}
-        severity="warning"
-        text="Please fill out all fields correctly!"
-      /> */}
-
-      {/* Warning alert for lowercase letter */}
-      {/* <CustomAlert
-        openState={openCapsSymbolWarningAlert}
-        severity="warning"
-        text="Please input only capital letters!"
-      /> */}
 
       {/* Symbol not found error */}
       <CustomAlert
@@ -543,6 +553,8 @@ const mapStateToProps = (state) => ({
   OTM5s: state.stock.OTM5s,
   OTM10s: state.stock.OTM10s,
   strikeATMs: state.stock.strikeATMs,
+  strikeOTM5s: state.stock.strikeOTM5s,
+  strikeOTM10s: state.stock.strikeOTM10s,
   ROIs: state.stock.ROIs,
   annualROIs: state.stock.annualROIs,
   OTM5ROIs: state.stock.OTM5ROIs,

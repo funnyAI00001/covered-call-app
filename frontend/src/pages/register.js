@@ -144,7 +144,7 @@ const Register = () => {
             <Divider />
             <Typography
               variant="body1"
-              color="initial"
+              color="white"
               textAlign="center"
               my={2}
             >
