@@ -16,41 +16,34 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import InfoIcon from "@mui/icons-material/Info";
 import WarningIcon from "@mui/icons-material/Warning";
-// import EditCalendarIcon from "@mui/icons-material/EditCalendar";
 import { useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { useState } from "react";
-import { connect } from "react-redux";
+import { useSelector } from "react-redux";
 import { useMediaQuery } from "@mui/material";
-// import { Avatar } from "@mui/material";
-
-// import { getInitials } from "../../utils/usefulFuncs";
-import AccountPopover from "../account/accountPopover";
 
 const drawerWidth = 240;
-let navItems = [];
+// let navItems = [];
 
 function DrawerAppBar(props) {
-  if (props.isAuthenticated) {
-    navItems = ["What is COVERD?"];
-  } else {
-    navItems = [];
-  }
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
+  // if (isAuthenticated) {
+  //   navItems = ["What is COVERD?"];
+  // } else {
+  //   navItems = [];
+  // }
 
   const { window } = props;
-  // const { user } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
   const isMd = useMediaQuery((theme) => theme.breakpoints.up("md"));
   const isLg = useMediaQuery((theme) => theme.breakpoints.up("lg"));
 
   // Set different image sizes based on screen size
   const imageStyle = {
-    width: isLg ? "3vw" : isMd ? "4vw" : "5vw",
+    width: isLg ? "5vw" : isMd ? "7vw" : "15vw",
     marginRight: "1vw",
   };
-
-  const popoverOpen = Boolean(anchorEl);
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
@@ -87,6 +80,7 @@ function DrawerAppBar(props) {
       <List>
         {/* {navItems.map((item, index) => ( */}
         <ListItem disablePadding>
+          <InfoIcon />
           <ListItemButton sx={{ textAlign: "center" }}>
             <NavLink
               to="https://coverd.io"
@@ -107,12 +101,12 @@ function DrawerAppBar(props) {
     window !== undefined ? () => window().document.body : undefined;
 
   return (
-    <Box display={props.isAuthenticated ? "flex" : "none"}>
+    <Box display={isAuthenticated ? "flex" : "none"}>
       <CssBaseline />
       <AppBar
         component="nav"
         position="static"
-        sx={{ color: "white", padding: 2 }}
+        sx={{ color: "white", padding: 1.3, paddingBottom: 0.9 }}
       >
         <Toolbar sx={{ position: "relative", justifyContent: "space-between" }}>
           <IconButton
@@ -125,11 +119,7 @@ function DrawerAppBar(props) {
             <MenuIcon />
           </IconButton>
           <Link to="/dashboard">
-            <img
-              src="/logo.png"
-              alt="logo"
-              style={imageStyle}
-            />
+            <img src="/logo.png" alt="logo" style={imageStyle} />
           </Link>
 
           <Typography
@@ -167,24 +157,6 @@ function DrawerAppBar(props) {
           </Typography>
 
           <Box sx={{ display: { xs: "none", sm: "block" }, gap: 2 }}>
-            {/* <Button
-              color="primary"
-              sx={{
-                marginRight: 2,
-                border: "none",
-                color: "white",
-              }}
-            >
-              <EditCalendarIcon sx={{ marginRight: 0.5 }} />
-              <Typography variant="h6" fontSize={17}>
-                <NavLink
-                  to="/expiration"
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  Expiration
-                </NavLink>
-              </Typography>
-            </Button> */}
             <Button
               color="primary"
               sx={{
@@ -205,26 +177,6 @@ function DrawerAppBar(props) {
               </Typography>
             </Button>
           </Box>
-          {/* <Avatar
-            src={user && user.avatar}
-            sx={{ width: 35, height: 35, cursor: "pointer" }}
-            onClick={(event) => {
-              setAnchorEl(event.currentTarget);
-            }}
-          >
-            {getInitials(user.name)}
-          </Avatar> */}
-          <AccountPopover
-            open={popoverOpen}
-            onClose={() => {
-              setAnchorEl(null);
-            }}
-            anchorEl={anchorEl}
-            PaperProps={{ sx: { width: 200 } }}
-            closePopover={() => {
-              setAnchorEl(null);
-            }}
-          />
         </Toolbar>
       </AppBar>
       <Box component="nav">
@@ -255,9 +207,4 @@ DrawerAppBar.propTypes = {
   window: PropTypes.func,
 };
 
-const mapStateToProps = (state) => ({
-  isAuthenticated: state.auth.isAuthenticated,
-  user: state.auth.user,
-});
-
-export default connect(mapStateToProps)(DrawerAppBar);
+export default DrawerAppBar;

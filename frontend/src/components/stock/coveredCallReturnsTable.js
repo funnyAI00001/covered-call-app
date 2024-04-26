@@ -4,9 +4,13 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import { Box } from "@mui/material";
+
+import { useState } from "react";
+import { Box, Divider } from "@mui/material";
 import { useTheme } from "@emotion/react";
 import { connect } from "react-redux";
+
+import LockWarning from "../dialog/lockWarning";
 
 const CoveredCallReturnsTable = ({
   symbols,
@@ -26,7 +30,13 @@ const CoveredCallReturnsTable = ({
     "Premium",
     "ROI",
     "Annual. ROI",
+    "Max Return",
+    "Max Risk",
+    "Max ROR",
+    "Annual. Max ROR",
   ];
+
+  const [openWarning, setOpenWarning] = useState(false);
 
   return (
     <fieldset
@@ -222,10 +232,133 @@ const CoveredCallReturnsTable = ({
                   </TableCell>
                 ))}
               </TableRow>
+              <TableRow>
+                <TableCell colSpan={annualROIs.length + 1}>
+                  <Divider sx={{ backgroundColor: "text.third" }} />
+                </TableCell>
+              </TableRow>
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  align="left"
+                  sx={{
+                    color: theme.palette.text.third,
+                    fontWeight: 600,
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  {rowNames[7]}
+                </TableCell>
+                {annualROIs.map((item, index) => (
+                  <TableCell
+                    align="center"
+                    key={index}
+                    title="Unlocked for Premium Users"
+                    onClick={() => setOpenWarning(true)}
+                  >
+                    -
+                  </TableCell>
+                ))}
+              </TableRow>
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  align="left"
+                  sx={{
+                    color: theme.palette.text.third,
+                    fontWeight: 600,
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  {rowNames[8]}
+                </TableCell>
+                {annualROIs.map((item, index) => (
+                  <TableCell
+                    align="center"
+                    key={index}
+                    title="Unlocked for Premium Users"
+                    onClick={() => setOpenWarning(true)}
+                  >
+                    -
+                  </TableCell>
+                ))}
+              </TableRow>
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  align="left"
+                  sx={{
+                    color: theme.palette.text.third,
+                    fontWeight: 600,
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  {rowNames[9]}
+                </TableCell>
+                {annualROIs.map((item, index) => (
+                  <TableCell
+                    align="center"
+                    key={index}
+                    title="Unlocked for Premium Users"
+                    onClick={() => setOpenWarning(true)}
+                  >
+                    -
+                  </TableCell>
+                ))}
+              </TableRow>
+              <TableRow
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell
+                  component="th"
+                  scope="row"
+                  align="left"
+                  sx={{
+                    color: theme.palette.text.third,
+                    fontWeight: 600,
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  {rowNames[10]}
+                </TableCell>
+                {annualROIs.map((item, index) => (
+                  <TableCell
+                    align="center"
+                    key={index}
+                    title="Unlocked for Premium Users"
+                    onClick={() => setOpenWarning(true)}
+                  >
+                    -
+                  </TableCell>
+                ))}
+              </TableRow>
             </TableBody>
           </Table>
         </TableContainer>
       </Box>
+
+      <LockWarning open={openWarning} onClose={() => setOpenWarning(false)} />
     </fieldset>
   );
 };

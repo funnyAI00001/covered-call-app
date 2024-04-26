@@ -19,6 +19,8 @@ import PrivateRoute from "./components/routes/privateRoute";
 import ThemeProvider from "./theme/ThemeProvider";
 import Scrollbars from "react-custom-scrollbars-2";
 import About from "./pages/about";
+import NotFound from "./pages/notFound";
+
 import { jwtDecode } from "jwt-decode";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -63,6 +65,7 @@ const App = () => {
                 <Route exact path="/register" element={<Register />}></Route>
                 <Route exact path="/login" element={<Login />}></Route>
                 <Route exact path="/about" element={<About />}></Route>
+                <Route exact path="*" element={<NotFound />}></Route>
                 <Route
                   exact
                   path="/dashboard"

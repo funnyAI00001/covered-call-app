@@ -8,14 +8,18 @@ import {
   Button,
   Grid,
 } from "@mui/material";
-import { connect } from "react-redux";
+import { useSelector, connect } from "react-redux";
+import { useLocation } from "react-router-dom";
+import { Helmet } from "react-helmet";
+
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 
-import CoveredCallPremiumsTable from "../components/stock/coveredCallPremiumsTable";
+// import CoveredCallPremiumsTable from "../components/stock/coveredCallPremiumsTable";
 import CoveredCallReturnsTable from "../components/stock/coveredCallReturnsTable";
 import LoadingOverlay from "../components/dialog/loadingOverlay";
 import CustomAlert from "../components/customAlert";
+import PremiumEncourage from "../components/dialog/premiumEncourage";
 
 import { getCoveredCallPremium } from "../actions/stockAction";
 import { getExpirations } from "../actions/stockAction";
@@ -32,8 +36,6 @@ const Dashboard = ({
   OTM5annualROIs,
   OTM10annualROIs,
   getCoveredCallPremium,
-  symbol_error,
-  option_error,
   expiration_date,
   expirations,
   strikeATMs,
@@ -41,18 +43,34 @@ const Dashboard = ({
   strikeOTM10s,
 }) => {
   const theme = useTheme();
-  const [symbols, setSymbols] = useState([""]);
   const [selectedButton, setSelectedButton] = useState("ATM");
   const [gotFirstResult, setGotFirstResult] = useState(false);
-  const [gotSecondResult, setGotSecondResult] = useState(false);
   const [firstCalculate, setFirstCalculate] = useState(false);
   const [selectedROIs, setSelectedROIs] = useState([]);
   const [selectedAnnualROIs, setSelectedAnnualROIs] = useState([]);
   const [premium, setPremium] = useState([]);
   const [strikePrices, setStrikePrices] = useState([]);
-  const [openSymbolNotFoundError, setOpenSymbolNotFoundError] = useState(false);
-  const [openOptionNotFoundError, setOpenOptionNotFoundError] = useState(false);
   const [openNoExpirationError, setOpenNoExpirationError] = useState(false);
+  const [openPremiumDialog, setOpenPremiumDialog] = useState(false);
+
+  const service_error = useSelector((state) => state.stock.service_error);
+  const server_error = useSelector((state) => state.stock.server_error);
+  const symbol_error = useSelector(
+    (state) => state.stock.symbol_not_found_error_message
+  );
+  const option_error = useSelector(
+    (state) => state.stock.options_not_found_error
+  );
+
+  const location = useLocation();
+  const urlParams = new URLSearchParams(location.search);
+  let symbolParam = urlParams.get("symbol");
+
+  if (symbolParam === null) {
+    symbolParam = "";
+  }
+
+  const [symbols, setSymbols] = useState([symbolParam]);
 
   useEffect(() => {
     if (ATMs.length > 0) {
@@ -61,24 +79,6 @@ const Dashboard = ({
       setGotFirstResult(false);
     }
   }, [ATMs]);
-
-  useEffect(() => {
-    if (symbol_error !== null) setOpenSymbolNotFoundError(true);
-
-    setTimeout(() => {
-      setOpenSymbolNotFoundError(false);
-    }, 5000);
-    setFirstCalculate(false);
-  }, [symbol_error]);
-
-  useEffect(() => {
-    if (option_error !== null) setOpenOptionNotFoundError(true);
-
-    setTimeout(() => {
-      setOpenOptionNotFoundError(false);
-    }, 5000);
-    setFirstCalculate(false);
-  }, [option_error]);
 
   // set tab of the coveredCallReturnstable as ATM whenever calculation result is updated
   useEffect(() => {
@@ -91,6 +91,11 @@ const Dashboard = ({
 
   // add symbols
   const addField = () => {
+    if (symbols.length >= 3) {
+      setOpenPremiumDialog(true);
+      return;
+    }
+
     setSymbols([...symbols, ""]);
   };
 
@@ -162,10 +167,6 @@ const Dashboard = ({
     setFirstCalculate(false);
   };
 
-  const hanldeCalculateAndReturn = () => {
-    setGotSecondResult(true);
-  };
-
   const handleDeleteSymbol = (index) => {
     const cutSymbols = [...symbols];
     cutSymbols.splice(index, 1);
@@ -173,14 +174,43 @@ const Dashboard = ({
     setSymbols(cutSymbols);
   };
 
+  const openPremium = () => {
+    setOpenPremiumDialog(true);
+  };
+
   return (
     <div
       sx={{
+        background: "white !important",
         "& .MuiButton-root": {
           backgroundColor: theme.palette.text.third,
         },
+        "& .MuiButton-root:hover": {
+          color: "grey",
+        },
       }}
     >
+      <Helmet>
+        <script key="function" id="facebook-pixel-script">{`
+                !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)}(window, document,'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
+                fbq('init', '1316474689231501');
+                fbq('track', 'PageView');
+            `}</script>
+        <noscript key="image" id="facebook-pixel-image">
+          {`<img
+            height="1"
+            width="1"
+            style="display:none"
+            src="https://www.facebook.com/tr?id=1316474689231501&ev=PageView&noscript=1"
+          />`}
+        </noscript>
+      </Helmet>
       {/* section 1 */}
       <section>
         <Typography variant="h3" color="text.third" textAlign="center" mt={4}>
@@ -301,6 +331,9 @@ const Dashboard = ({
               marginTop: 2,
               backgroundColor: `${theme.palette.text.third} !important`,
               color: "white",
+              "&:hover": {
+                color: "grey",
+              },
             }}
             onClick={handleCalculate}
           >
@@ -312,9 +345,27 @@ const Dashboard = ({
       {/* Section 2 */}
       {gotFirstResult && (
         <section>
-          <Typography variant="h4" color="text.third" textAlign="center" mt={3}>
-            Assumptions
-          </Typography>
+          <Box
+            display="flex"
+            marginTop={3}
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Typography
+              variant="h4"
+              color="text.third"
+              textAlign="center"
+              marginRight={2}
+            >
+              Assumptions
+            </Typography>
+            <img
+              src="/info.png"
+              width={18}
+              alt="info"
+              onClick={() => openPremium()}
+            ></img>
+          </Box>
           <fieldset
             style={{
               width: "40%",
@@ -342,7 +393,7 @@ const Dashboard = ({
               </ul>
             </Box>
           </fieldset>
-          <Typography variant="h4" color="text.third" textAlign="center" mt={3}>
+          {/* <Typography variant="h4" color="text.third" textAlign="center" mt={6}>
             Covered Call Premiums
           </Typography>
 
@@ -353,38 +404,38 @@ const Dashboard = ({
             OTM5s={OTM5s}
             OTM10s={OTM10s}
             expiration_date={expiration_date}
-          />
-
-          <div style={{ textAlign: "center" }}>
+          /> */}
+          <Box
+            display="flex"
+            justifyContent="center"
+            mt={3}
+            mb={10}
+            sx={{
+              "& .MuiButton-root": {
+                color: "white",
+                borderColor: theme.palette.text.third,
+                background: theme.palette.text.third,
+              },
+              "& .MuiButton-root:hover": {
+                color: "grey",
+              },
+            }}
+          >
             <Button
               sx={{
-                backgroundColor: `${theme.palette.text.third} !important`,
-                color: "white",
-                marginTop: 2,
+                marginRight: 2,
               }}
-              onClick={() => {
-                hanldeCalculateAndReturn();
-              }}
+              onClick={() => openPremium()}
             >
-              Calculate % Returns
+              Select Expiry Date
             </Button>
-            <br></br>
-            <Button
-              sx={{
-                backgroundColor: theme.palette.text.third,
-                color: "white",
-                marginTop: 2,
-              }}
-              onClick={() => setGotFirstResult(false)}
-            >
-              Back
-            </Button>
-          </div>
+            <Button onClick={() => openPremium()}>Adjust % OTM</Button>
+          </Box>
         </section>
       )}
 
       {/* Section 3 */}
-      {gotSecondResult && (
+      {gotFirstResult && (
         <section>
           <Typography
             variant="h4"
@@ -393,11 +444,12 @@ const Dashboard = ({
             mt={5}
             mb={4}
           >
-            Covered Call % Returns
+            Covered Call Premiums and % Returns{" "}
           </Typography>
           <Box
             display="flex"
             justifyContent="center"
+            alignItems="center"
             mx={2}
             my={2}
             sx={{
@@ -407,6 +459,7 @@ const Dashboard = ({
                 border: `1px solid ${theme.palette.text.third}`,
                 paddingY: 0,
                 paddingX: 2,
+                height: 60,
               },
               "& .selected": {
                 backgroundColor: `${theme.palette.text.third} !important`,
@@ -418,7 +471,7 @@ const Dashboard = ({
               className={selectedButton === "ATM" ? "selected" : ""}
               onClick={() => handleButtonClick("ATM")}
             >
-              ATM
+              ATM <br></br> {""}
             </Button>
             <Button
               className={selectedButton === "5%OTM" ? "selected" : ""}
@@ -432,6 +485,13 @@ const Dashboard = ({
             >
               10% <br /> OTM
             </Button>
+            <img
+              src="/info.png"
+              width={18}
+              height={18}
+              alt="info"
+              onClick={() => openPremium()}
+            ></img>
           </Box>
           <CoveredCallReturnsTable
             symbols={symbols}
@@ -485,31 +545,25 @@ const Dashboard = ({
             </Box>
           </fieldset>
 
-          <div style={{ textAlign: "center" }}>
-            <Button
-              sx={{
+          <Box
+            sx={{
+              textAlign: "center",
+              "& .MuiButton-root": {
                 backgroundColor: theme.palette.text.third,
                 color: "white",
                 marginTop: 2,
-              }}
-              onClick={() => {
-                window.open("https://coverd.io/waitlist", "_blank");
-              }}
-            >
-              Create Shortlist
-            </Button>
+              },
+              "& .MuiButton-root:hover": {
+                color: "grey",
+              },
+            }}
+          >
+            <Button onClick={() => openPremium()}>Create Shortlist</Button>
             <br></br>
-            <Button
-              sx={{
-                backgroundColor: theme.palette.text.third,
-                color: "white",
-                marginTop: 2,
-              }}
-              onClick={() => setGotSecondResult(false)}
-            >
-              Back
-            </Button>
-          </div>
+            <Button onClick={() => openPremium()}>Export Table to PDF</Button>
+            <br></br>
+            <Button onClick={() => setGotFirstResult(false)}>Back</Button>
+          </Box>
         </section>
       )}
 
@@ -519,16 +573,30 @@ const Dashboard = ({
 
       {/* Symbol not found error */}
       <CustomAlert
-        openState={openSymbolNotFoundError}
+        openState={symbol_error}
         severity="warning"
-        text={symbol_error}
+        text="Ticker entered does not exist"
       />
 
       {/* Option not found error */}
       <CustomAlert
-        openState={openOptionNotFoundError}
+        openState={option_error}
         severity="warning"
-        text={option_error}
+        text="No options available for ticker!"
+      />
+
+      {/* Service not available error */}
+      <CustomAlert
+        openState={service_error}
+        severity="warning"
+        text="Some tickers will not work on trading holidays. On the paid version, you can plan your trades also on trading holidays!"
+      />
+
+      {/* Server error */}
+      <CustomAlert
+        openState={server_error}
+        severity="warning"
+        text="Server Error!"
       />
 
       {/* Expiration not found error */}
@@ -536,6 +604,11 @@ const Dashboard = ({
         openState={openNoExpirationError}
         severity="warning"
         text="Please upload expiration dates in the expiration page!"
+      />
+
+      <PremiumEncourage
+        open={openPremiumDialog}
+        onClose={() => setOpenPremiumDialog(false)}
       />
     </div>
   );
@@ -561,8 +634,6 @@ const mapStateToProps = (state) => ({
   OTM5annualROIs: state.stock.OTM5annualROIs,
   OTM10ROIs: state.stock.OTM10ROIs,
   OTM10annualROIs: state.stock.OTM10annualROIs,
-  symbol_error: state.stock.symbol_not_found_error_message,
-  option_error: state.stock.options_not_found_error_message,
   expiration_date: state.stock.expiration_date,
   expirations: state.stock.expirations,
 });

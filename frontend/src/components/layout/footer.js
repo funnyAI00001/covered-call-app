@@ -25,7 +25,7 @@ const Footer = ({ isAuthenticated }) => {
       <Grid container alignItems="center" color="text.secondary" fontSize={14}>
         <Grid item xs={2}></Grid>
         <Grid item xs={8}>
-          Copyright @ {currentYear} Call Option Calculator
+          Copyright (c) {currentYear} <br></br>COVERD.io Coverd Call Calculator
         </Grid>
         <Grid item xs={2}></Grid>
       </Grid>

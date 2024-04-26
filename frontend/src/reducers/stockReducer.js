@@ -2,7 +2,9 @@ import {
   GET_COVEREDCALLPREMIUM,
   OPTIONS_NOT_FOUND_ERROR,
   SYMBOL_NOT_FOUND_ERROR,
+  SERVICE_UNAVAILABLE_ERROR,
   GET_EXPIRATIONS,
+  SERVER_ERROR,
 } from "../actions/types";
 
 const initialState = {
@@ -19,10 +21,12 @@ const initialState = {
   OTM5annualROIs: [],
   OTM10ROIs: [],
   OTM10annualROIs: [],
-  symbol_not_found_error_message: null,
-  options_not_found_error_message: null,
+  symbol_not_found_error_message: false,
+  options_not_found_error: false,
+  service_error: false,
   expirations: [],
   expiration_date: "",
+  server_error: false,
 };
 
 const stockReducer = (state = initialState, action) => {
@@ -72,13 +76,25 @@ const stockReducer = (state = initialState, action) => {
     case OPTIONS_NOT_FOUND_ERROR:
       return {
         ...state,
-        options_not_found_error_message: action.payload.message,
+        options_not_found_error: action.payload.message,
       };
 
     case GET_EXPIRATIONS:
       return {
         ...state,
         expirations: action.payload.expirations,
+      };
+
+    case SERVICE_UNAVAILABLE_ERROR:
+      return {
+        ...state,
+        service_error: action.payload.message,
+      };
+
+    case SERVER_ERROR:
+      return {
+        ...state,
+        server_error: action.payload.message,
       };
 
     default:

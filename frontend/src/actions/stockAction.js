@@ -4,6 +4,8 @@ import {
   SYMBOL_NOT_FOUND_ERROR,
   OPTIONS_NOT_FOUND_ERROR,
   GET_EXPIRATIONS,
+  SERVICE_UNAVAILABLE_ERROR,
+  SERVER_ERROR,
 } from "./types";
 import { backendUrl } from "../config/url";
 
@@ -57,13 +59,13 @@ export const getCoveredCallPremium = (data, callback) => async (dispatch) => {
           if (err.response.data.message === "Data not found for symbol") {
             dispatch({
               type: SYMBOL_NOT_FOUND_ERROR,
-              payload: { message: "Ticker entered does not exist" },
+              payload: { message: true },
             });
 
             setTimeout(() => {
               dispatch({
                 type: SYMBOL_NOT_FOUND_ERROR,
-                payload: { message: null },
+                payload: { message: false },
               });
             }, 3000);
           } else if (
@@ -71,22 +73,52 @@ export const getCoveredCallPremium = (data, callback) => async (dispatch) => {
           ) {
             dispatch({
               type: OPTIONS_NOT_FOUND_ERROR,
-              payload: { message: "No options available for ticker" },
+              payload: { message: true },
             });
 
             setTimeout(() => {
               dispatch({
                 type: OPTIONS_NOT_FOUND_ERROR,
-                payload: { message: null },
+                payload: { message: false },
+              });
+            }, 3000);
+          } else if (err.response.data.message === "Service not available") {
+            dispatch({
+              type: SERVICE_UNAVAILABLE_ERROR,
+              payload: {
+                message: true,
+              },
+            });
+
+            setTimeout(() => {
+              dispatch({
+                type: SERVICE_UNAVAILABLE_ERROR,
+                payload: { message: false },
               });
             }, 3000);
           }
         } else {
-          console.log("server error");
+          dispatch({
+            type: SERVER_ERROR,
+            payload: { message: true },
+          });
+
+          setTimeout(() => {
+            dispatch({
+              type: SERVER_ERROR,
+              payload: { message: false },
+            });
+          }, 3000);
         }
+
+        callback && callback();
       });
   } catch (err) {
     console.log(err);
+    dispatch({
+      type: SERVER_ERROR,
+      payload: { message: "server error" },
+    });
   }
 };
 

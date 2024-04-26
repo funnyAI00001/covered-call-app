@@ -13,9 +13,6 @@ const upload = multer({ storage: storage });
 require("dotenv").config();
 
 router.post("/getCoveredcallPremium", async (req, res) => {
-  let currentDate = new Date();
-  let formattedDate = null;
-
   const { symbols } = req.body;
   const token = process.env.TOKEN || "";
   const expirations = await Expiration.find({});
@@ -23,13 +20,33 @@ router.post("/getCoveredcallPremium", async (req, res) => {
   const now = moment();
   let closestDate = null;
 
+  // First, find the first suitable date which satisfies the condition
   for (let item of expirations) {
     const date = moment(item.date, "M/D/YYYY");
     const difference = date.diff(now, "days");
 
     if (difference > 0 && difference > 8) {
       closestDate = item;
-      break; // Exit the loop once we find the first suitable date
+      break;
+    }
+  }
+
+  if (closestDate === null) {
+    // If not found proper expiry date
+    res.status(400).json({ message: "Not found a proper expiry date!" });
+
+    return;
+  }
+
+  // Find the most suitable expiry date
+  for (let item of expirations) {
+    const date1 = moment(item.date, "M/D/YYYY");
+    const difference1 = date1.diff(now, "days");
+    const date2 = moment(closestDate.date, "M/D/YYYY");
+    const difference2 = date2.diff(now, "days");
+
+    if (difference1 > 0 && difference1 > 8 && difference1 < difference2) {
+      closestDate = item;
     }
   }
 
@@ -39,7 +56,7 @@ router.post("/getCoveredcallPremium", async (req, res) => {
     "0"
   )}-${parts[1].padStart(2, "0")}`;
 
-  // data to be returned
+  // Data to be returned
   const sharePrices = [];
   const ATMs = [];
   const OTM5s = [];
@@ -58,41 +75,29 @@ router.post("/getCoveredcallPremium", async (req, res) => {
   for (let index = 0; index < symbols.length; index++) {
     const symbol = symbols[index];
 
-    let attempts = 0;
     let response = null;
 
-    while (attempts < 7) {
-      currentDate.setDate(currentDate.getDate() - 1);
-      formattedDate = currentDate.toISOString().split("T")[0];
-
-      try {
-        response = await axios.get(
-          "https://api.polygon.io/v1/open-close/" +
-            symbol +
-            "/" +
-            formattedDate,
-          {
-            params: {
-              adjusted: true,
-              apiKey: "cPRbYkKamxX36Bg5ceDmzHmWn5KVLm2k",
-            },
-          }
-        );
-        break;
-      } catch (error) {
-        console.log("Error occurred while fetching data:", error.message);
-        attempts++;
-      }
-    }
-
-    if (attempts === 7 && !response) {
-      console.log("Data not found for symbol:", symbol);
+    try {
+      response = await axios.get(
+        "https://api.marketdata.app/v1/stocks/quotes/" + symbol,
+        {
+          params: {
+            Accept: "application/json",
+            token: token,
+          },
+        }
+      );
+    } catch (error) {
+      console.log("Error occurred while fetching data:", error.message);
       res.status(500).json({ message: "Data not found for symbol" });
       return;
     }
 
-    sharePrices.push(response.data.afterHours);
-    currentDate.setDate(currentDate.getDate() + 1); // if the request is successful, add date 1 day for the next symbol
+    if (response.data.bid == 0.0) {
+      res.status(500).json({ message: "Service not available" });
+    }
+
+    sharePrices.push(response.data.bid);
 
     let daysToExpirationDate = 1;
     const startDate = new Date(expiration_date);
@@ -103,96 +108,82 @@ router.post("/getCoveredcallPremium", async (req, res) => {
 
     // Convert the time difference from milliseconds to days
     daysToExpirationDate = Math.ceil(timeDifference / (1000 * 3600 * 24));
-    // const currentYear = new Date().getFullYear();
 
-    // get expiration dates
-    // await axios
-    //   .get("https://api.marketdata.app/v1/options/expirations/" + symbol)
-    //   .then((res) => {
-    //     const expirations = res.data.expirations;
-    //     numOfExpirations = expirations.filter((item) =>
-    //       item.includes(currentYear)
-    //     ).length;
-    //   })
-    //   .catch((err) => {
-    //     console.log(err.message + " expiration");
-    //     // res.json({ message: "Error in fetching expirations" });
-    //   });
-
-    await axios
-      .get(
+    try {
+      const respon = await axios.get(
         `https://api.marketdata.app/v1/options/chain/${symbol}/?expiration=${expiration_date}&side=call&token=${token}`
-      )
-      .then((res) => {
-        if (res.data.s === "no_data") {
-          res.status(400).json({ message: "Error in fetching options chain" });
-          return;
-        }
-        const sharePrice = response.data.afterHours;
-        const strike = res.data.strike;
-        const mid = res.data.mid;
+      );
 
-        let ATMindex = 0,
-          OTM5index = 0,
-          OTM10index = 0;
+      if (respon.data.s === "no_data") {
+        res.status(400).json({ message: "Error in fetching options chain" });
+        return;
+      }
+      const sharePrice = response.data.bid;
+      const strike = respon.data.strike;
+      const mid = respon.data.mid;
 
-        for (let index = 1; index < strike.length; index++) {
-          // finding ATM
-          const diff1 = Math.abs(sharePrice - strike[ATMindex]);
-          const diff2 = Math.abs(sharePrice - strike[index]);
+      let ATMindex = 0,
+        OTM5index = 0,
+        OTM10index = 0;
 
-          if (diff2 < diff1) {
-            ATMindex = index;
-          }
+      for (let index = 1; index < strike.length; index++) {
+        // finding ATM
+        const diff1 = Math.abs(sharePrice - strike[ATMindex]);
+        const diff2 = Math.abs(sharePrice - strike[index]);
 
-          const diff3 = Math.abs(sharePrice * 1.05 - strike[OTM5index]);
-          const diff4 = Math.abs(sharePrice * 1.05 - strike[index]);
-
-          if (diff4 < diff3) {
-            OTM5index = index;
-          }
-
-          const diff5 = Math.abs(sharePrice * 1.1 - strike[OTM10index]);
-          const diff6 = Math.abs(sharePrice * 1.1 - strike[index]);
-
-          if (diff6 < diff5) {
-            OTM10index = index;
-          }
+        if (diff2 < diff1 && sharePrice < strike[index]) {
+          ATMindex = index;
         }
 
-        const ATM = mid[ATMindex] * 100;
-        const OTM5 = mid[OTM5index] * 100;
-        const OTM10 = mid[OTM10index] * 100;
-        const strikeATM = strike[ATMindex];
-        const strikeOTM5 = strike[OTM5index];
-        const strikeOTM10 = strike[OTM10index];
-        const ROI = ATM / sharePrice;
-        const AnnualROI =
-          (Math.pow(1 + ROI / 100, 365 / daysToExpirationDate) - 1) * 100;
-        const OTM5ROI = OTM5 / sharePrice;
-        const OTM5AnnualROI =
-          (Math.pow(1 + OTM5ROI / 100, 365 / daysToExpirationDate) - 1) * 100;
-        const OTM10ROI = OTM10 / sharePrice;
-        const OTM10AnnualROI =
-          (Math.pow(1 + OTM10ROI / 100, 365 / daysToExpirationDate) - 1) * 100;
+        const diff3 = Math.abs(sharePrice * 1.05 - strike[OTM5index]);
+        const diff4 = Math.abs(sharePrice * 1.05 - strike[index]);
 
-        ATMs.push(ATM.toFixed(0));
-        OTM5s.push(OTM5.toFixed(0));
-        OTM10s.push(OTM10.toFixed(0));
-        strikeATMs.push(strikeATM);
-        strikeOTM5s.push(strikeOTM5);
-        strikeOTM10s.push(strikeOTM10);
-        ROIs.push(ROI.toFixed(2));
-        annualROIs.push(AnnualROI.toFixed(2));
-        OTM5ROIs.push(OTM5ROI.toFixed(2));
-        OTM5annualROIs.push(OTM5AnnualROI.toFixed(2));
-        OTM10ROIs.push(OTM10ROI.toFixed(2));
-        OTM10annualROIs.push(OTM10AnnualROI.toFixed(2));
-      })
-      .catch((err) => {
-        console.log("Error in fetching options chain " + err.message);
-        res.json({ message: "Error in fetching options chain" });
-      });
+        if (diff4 < diff3) {
+          OTM5index = index;
+        }
+
+        const diff5 = Math.abs(sharePrice * 1.1 - strike[OTM10index]);
+        const diff6 = Math.abs(sharePrice * 1.1 - strike[index]);
+
+        if (diff6 < diff5) {
+          OTM10index = index;
+        }
+      }
+
+      const ATM = mid[ATMindex] * 100;
+      const OTM5 = mid[OTM5index] * 100;
+      const OTM10 = mid[OTM10index] * 100;
+      const strikeATM = strike[ATMindex];
+      const strikeOTM5 = strike[OTM5index];
+      const strikeOTM10 = strike[OTM10index];
+      const ROI = ATM / sharePrice;
+      const AnnualROI =
+        (Math.pow(1 + ROI / 100, 365 / daysToExpirationDate) - 1) * 100;
+      const OTM5ROI = OTM5 / sharePrice;
+      const OTM5AnnualROI =
+        (Math.pow(1 + OTM5ROI / 100, 365 / daysToExpirationDate) - 1) * 100;
+      const OTM10ROI = OTM10 / sharePrice;
+      const OTM10AnnualROI =
+        (Math.pow(1 + OTM10ROI / 100, 365 / daysToExpirationDate) - 1) * 100;
+
+      ATMs.push(ATM.toFixed(0));
+      OTM5s.push(OTM5.toFixed(0));
+      OTM10s.push(OTM10.toFixed(0));
+      strikeATMs.push(strikeATM);
+      strikeOTM5s.push(strikeOTM5);
+      strikeOTM10s.push(strikeOTM10);
+      ROIs.push(ROI.toFixed(2));
+      annualROIs.push(AnnualROI.toFixed(2));
+      OTM5ROIs.push(OTM5ROI.toFixed(2));
+      OTM5annualROIs.push(OTM5AnnualROI.toFixed(2));
+      OTM10ROIs.push(OTM10ROI.toFixed(2));
+      OTM10annualROIs.push(OTM10AnnualROI.toFixed(2));
+    } catch (err) {
+      console.log("Error in fetching options chain " + err.message);
+      res.status(400).json({ message: "Error in fetching options chain" });
+
+      return;
+    }
   }
 
   res.json({
